@@ -1,4 +1,4 @@
-## Data analytics using Shiny
+## iNEXT on Shiny
 
 Interactive data analytics using [R](http://www.r-project.org/) and [Shiny](http://www.rstudio.com/shiny/) by [Rstudio](http://www.rstudio.com/). 
 
@@ -14,7 +14,7 @@ Interactive data analytics using [R](http://www.r-project.org/) and [Shiny](http
 
 Start R(studio) and copy-and-paste the commands below:
 
-  install.packages('shiny', repos = "http://cran.rstudio.com")
+	install.packages('shiny', repos = "http://cran.rstudio.com")
 	shiny::runGitHub('inext','JohnsonHsieh')
 
 ### License
