@@ -247,13 +247,11 @@ iNEXT.Ind <- function(Spec, endpoint=2*sum(Spec), Knots=40, se=TRUE, nboot=50)
     
     out.0 <- cbind("m"=m, "D0.hat"=D0.hat, "95%LCL"=left.0, "95%UCL"=right.0, "C.hat"=C.hat)
     out.C <- cbind("m"=m, "C.hat"=C.hat, "95%LCL"=left.C, "95%UCL"=right.C)
-    out <- data.frame(m, D0.hat, left.0, right.0, C.hat, left.C, right.C)
-    colnames(out) <- c("m", "Sm", "Sm.LCL", "Sm.UCL", "Cm", "Cm.LCL", "Cm.UCL")
+    out <- list("D0.hat"=out.0, "C.hat"=out.C)
   }
   else
   {
-    #out <- list("D0.hat"=cbind("m"=m, "D0.hat"=D0.hat, "C.hat"=C.hat), "C.hat"=cbind("m"=m, "C.hat"=C.hat))
-    out <- data.frame("m"=m, "Sm"=D0.hat, "Cm"=C.hat)
+    out <- list("D0.hat"=cbind("m"=m, "D0.hat"=D0.hat, "C.hat"=C.hat), "C.hat"=cbind("m"=m, "C.hat"=C.hat))
   }
   return(out)
 }
@@ -296,18 +294,15 @@ iNEXT.Sam <- function(Spec, endpoint=2*Spec[1], Knots=40, se=TRUE, nboot=50)
     right.C <- C.hat + error.C
     
     
-    #out.0 <- cbind("t"=t, "D0.hat"=D0.hat, "95%LCL"=left.0, "95%UCL"=right.0, "C.hat"=C.hat)
-    #out.C <- cbind("t"=t, "C.hat"=C.hat, "95%LCL"=left.C, "95%UCL"=right.C)
-    #out <- list("D0.hat"=out.0, "C.hat"=out.C)
-    out <- data.frame(t, D0.hat, left.0, right.0, C.hat, left.C, right.C)
-    colnames(out) <- c("t", "St", "St.LCL", "St.UCL", "Ct", "Ct.LCL", "Ct.UCL")
+    out.0 <- cbind("t"=t, "D0.hat"=D0.hat, "95%LCL"=left.0, "95%UCL"=right.0, "C.hat"=C.hat)
+    out.C <- cbind("t"=t, "C.hat"=C.hat, "95%LCL"=left.C, "95%UCL"=right.C)
+    out <- list("D0.hat"=out.0, "C.hat"=out.C)
   }
   else
   {
-    #out.0 <- cbind("t"=t, "D0.hat"=D0.hat, "C.hat"=C.hat)
-    #out.C <- cbind("t"=t, "C.hat"=C.hat)
-    #out <- list("D0.hat"=out.0, "C.hat"=out.C)
-    out <- data.frame("t"=t, "St"=D0.hat, "Ct"=C.hat)
+    out.0 <- cbind("t"=t, "D0.hat"=D0.hat, "C.hat"=C.hat)
+    out.C <- cbind("t"=t, "C.hat"=C.hat)
+    out <- list("D0.hat"=out.0, "C.hat"=out.C)
   }
   return(out)
 }
@@ -333,9 +328,10 @@ plot.iNEXT <- function(out, xlab=colnames(out)[1], ylab=colnames(out)[2], xlim=r
   ref <- floor(nrow(out)/2)
   Inte <- as.data.frame(out[1:ref, ])
   Extr <- as.data.frame(out[ref:nrow(out), ])
+  Mat <- rbind(Inte, Extr)
   plot(0, type="n", xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab,...)
-  if(ncol(out) == 4){
-    conf.reg(out[,1], out[,3], out[,4], col=adjustcolor(col, 0.25), border=NA)
+  if(ncol(Mat) > 3){
+    conf.reg(Mat[,1], Mat$"95%LCL", Mat$"95%UCL", col=adjustcolor(col, 0.25), border=NA)
   }
   lines(Inte, lty=1, lwd=2, col=col)
   lines(Extr, lty=2, lwd=2, col=col)
@@ -348,8 +344,8 @@ plot.iNEXT <- function(out, xlab=colnames(out)[1], ylab=colnames(out)[2], xlim=r
 ## Example individual-based data, spiders abundance data collected by Sackett et al. (2011)
 ##
 ##
-#Girdled <- c(46, 22, 17, 15, 15, 9, 8, 6, 6, 4, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-#Logged <- c(88, 22, 16, 15, 13, 10, 8, 8, 7, 7, 7, 5, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+Girdled <- c(46, 22, 17, 15, 15, 9, 8, 6, 6, 4, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+Logged <- c(88, 22, 16, 15, 13, 10, 8, 8, 7, 7, 7, 5, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 
 ##
 ##
@@ -448,8 +444,3 @@ InvChat.Sam <- function(Spec, sc)
   }
   t
 }
-
-
-out1 <- iNEXT.Ind(Oldgrowth)
-out2 <- iNEXT.Ind(Secondgrowth)
-out <- list(out1, out2)

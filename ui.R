@@ -7,12 +7,36 @@ shinyUI(pageWithSidebar(
   headerPanel("iNext Online"),
   #input
   sidebarPanel(
-    p(h4("Load Data")),
+    tags$head(
+      tags$style(type="text/css", "label.radio { display: inline-block; }", ".radio input[type=\"radio\"] { float: none; }"),
+      tags$style(type="text/css", "select { max-width: 250px; }"),
+      tags$style(type="text/css", "input { max-width: 250px; }"),
+      tags$style(type="text/css", "textarea { max-width: 230px; }"),
+      #tags$style(type='text/css', ".well { padding: 5px; margin-bottom: 5px; max-width: 300px; }"),
+      tags$style(type='text/css', ".span4 { max-width: 300px; }")
+    ),
+    p(h4("Data setting")),
     wellPanel(
       selectInput("data_type", "Select analysed data type:", 
                   c("Individual-based"="ind", "Sample-based"="sam")),
       uiOutput("choose_dataset"),
-      p(em("Using ctrl / command key to select multiple dataset you want"))
+      p(em("Using ctrl / command key to select multiple dataset you want")),
+      
+      checkboxInput("import_data", strong("Import your data"), FALSE),
+      conditionalPanel(
+        condition="input.import_data==true",
+        
+        conditionalPanel(
+          condition="input.data_type == 'ind'",
+          uiOutput("ui_import_ind")
+        ),
+        conditionalPanel(
+          condition="input.data_type == 'sam'",
+          uiOutput("ui_import_sam")
+        ),
+        
+        p(em("Type R code to import data"))
+      )
     ),
     
     p(h4("General Setting")),
@@ -66,6 +90,11 @@ shinyUI(pageWithSidebar(
   mainPanel(tabsetPanel(
     tabPanel("Data Summary", 
              h4("Summary"),
+             checkboxInput("showRaw", "Show raw data", FALSE),
+             conditionalPanel(
+               condition="input.showRaw == true",
+               verbatimTextOutput("dataview")),
+             
              verbatimTextOutput("summary"), 
              #verbatimTextOutput("select_out"),
              downloadLink("dlsummary", "Download as csv file")
@@ -73,7 +102,8 @@ shinyUI(pageWithSidebar(
     
     tabPanel("Rarefaction and Predction",
              h4("Rarefaction and Predction"),
-             verbatimTextOutput("inext"),
+             #tableOutput("inext"),
+             uiOutput("inext"),       
              downloadLink("dlinext", "Download as csv file")
              
     ),
