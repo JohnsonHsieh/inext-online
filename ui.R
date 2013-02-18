@@ -44,12 +44,12 @@ shinyUI(pageWithSidebar(
       numericInput("knots", "Number of knots", 
                    min=20, max=200, step=10, value=40),
       numericInput("nboot", "Number of bootstraps", 
-                   min=0, max=500, step=10, value=0),
+                   min=0, max=500, step=20, value=0),
       #p(em("Setting the number of bootstrap to zero will not compute 95% confidence band.")),
       
       conditionalPanel(
         condition = "input.data_type == 'ind'",
-        selectInput("ul_ind_method", "Upper limit control:", 
+        selectInput("ul_ind_method", "Endpoint(s) control:", 
                     c("Number of individuals"="si", "Sample coverage"="sc")
         ),
         conditionalPanel(
@@ -64,7 +64,7 @@ shinyUI(pageWithSidebar(
       
       conditionalPanel(
         condition = "input.data_type == 'sam'",
-        selectInput("ul_sam_method", "Upper limit control:", 
+        selectInput("ul_sam_method", "Endpoint(s) control:", 
                     c("Number of Samples"="si", "Sample coverage"="sc")
         ),
         conditionalPanel(
@@ -89,23 +89,32 @@ shinyUI(pageWithSidebar(
   
   mainPanel(tabsetPanel(
     tabPanel("Data Summary", 
-             h4("Summary"),
-             checkboxInput("showRaw", "Show raw data", FALSE),
+             h3("Basic data infomation"),
+             checkboxInput("showRaw", "Show raw data (Observed frequencies)", FALSE),
              conditionalPanel(
                condition="input.showRaw == true",
                verbatimTextOutput("dataview")),
+             verbatimTextOutput("summary"),
+             downloadLink("dlsummary", "Download as csv file"),
+             conditionalPanel(
+               condition="input.data_type == 'ind'",
+               includeMarkdown("www/summary_ind.md")),
+             conditionalPanel(
+               condition="input.data_type == 'sam'",
+               includeMarkdown("www/summary_sam.md"))
              
-             verbatimTextOutput("summary"), 
-             #verbatimTextOutput("select_out"),
-             downloadLink("dlsummary", "Download as csv file")
     ),
     
     tabPanel("Rarefaction and Predction",
-             h4("Rarefaction and Predction"),
-             #tableOutput("inext"),
+             h3("Rarefaction and Predction"),
              uiOutput("inext"),       
-             downloadLink("dlinext", "Download as csv file")
-             
+             downloadLink("dlinext", "Download as csv file"),
+             conditionalPanel(
+               condition="input.data_type == 'ind'",
+               includeMarkdown("www/inext_ind.md")),
+             conditionalPanel(
+               condition="input.data_type == 'sam'",
+               includeMarkdown("www/inext_sam.md"))                        
     ),
     
     tabPanel("Plot Figures",

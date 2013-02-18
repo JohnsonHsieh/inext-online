@@ -11,8 +11,8 @@ summary.Ind <- function(dat){
     c(n, Sobs, Shat, Chat, fk)
   }
   out <- t(apply(as.matrix(dat), 2, Fun))
-  colnames(out) <- c("n", "Sobs", "Shat", "Chat", paste("f",1:10, sep=""))
-  as.data.frame(out)
+  colnames(out) <- c("n", "S.obs", "S.hat", "C.hat", paste("f",1:10, sep=""))
+  as.data.frame(out, row.names="")
 }
 
 
@@ -226,7 +226,7 @@ Chat.Sam <- function(Spec, t){
 iNEXT.Ind <- function(Spec, endpoint=2*sum(Spec), Knots=40, se=TRUE, nboot=50)
 {
   n <- sum(Spec)  	  	#sample size
-  m <- c(round(seq(1, sum(Spec)-1, length=floor(Knots/2)-1)), sum(Spec), round(seq(sum(Spec)+1, endpoint, length=floor(Knots/2))))
+  m <- c(floor(seq.int(1, sum(Spec)-1, length=floor(Knots/2)-1)), sum(Spec), floor(seq.int(sum(Spec)+1, to=endpoint, length=floor(Knots/2))))
   m <- c(1, m[-1])      
   D0.hat <- D0hat.Ind(Spec, m)
   C.hat <- Chat.Ind(Spec, m)
@@ -276,7 +276,7 @@ iNEXT.Ind <- function(Spec, endpoint=2*sum(Spec), Knots=40, se=TRUE, nboot=50)
 iNEXT.Sam <- function(Spec, endpoint=2*Spec[1], Knots=40, se=TRUE, nboot=50)
 {
   nT <- Spec[1]
-  t <- c(round(seq(1, nT-1, length=floor(Knots/2)-1)), nT, round(seq(nT+1, endpoint, length=floor(Knots/2))))
+  t <- c(floor(seq.int(1, nT-1, length=floor(Knots/2)-1)), nT, floor(seq.int(nT+1, to=endpoint, length=floor(Knots/2))))
   t <- c(1, t[-1])
   D0.hat <- D0hat.Sam(Spec, t) 
   C.hat <- Chat.Sam(Spec, t)

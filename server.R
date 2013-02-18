@@ -135,7 +135,7 @@ shinyServer(function(input, output) {
   
   #Download summary data  
   output$dlsummary <- downloadHandler(
-    filename = function() { paste('SummaryData-', Sys.Date(), '.csv', sep='') },
+    filename = function() { paste('Info_', Sys.Date(), '_[iNEXT].csv', sep='') },
     content = function(file) { 
       out <- readRDS(tempRD1)
       saveList2csv(out, file)      
@@ -147,23 +147,24 @@ shinyServer(function(input, output) {
   #############################################################################  
   
   output$choose_ulsi_ind <- renderUI({
-    if(input$data_type != "ind" | input$ul_ind_method != "si") return()
-    dataset <- selectedData()
-    names(dataset) <- input$dataset
-    min <- max <- value <- 0
-    for(i in seq_along(dataset)){  
-      min[i] <- sum(dataset[[i]])
-      value[i] <- 2*min[i]
-      max[i] <- InvChat.Ind(dataset[[i]], 0.999)
-    }
-    min <- max(min)
-    max <- max(max)
-    value <- max(value)
-    sliderInput("ulsi_ind", "", min=min, max=max, step=1, value=value)
+    if (input$data_type == "ind" && input$ul_ind_method == "si"){
+      dataset <- selectedData()
+      names(dataset) <- input$dataset
+      min <- max <- value <- 0
+      for(i in seq_along(dataset)){  
+        min[i] <- sum(dataset[[i]])
+        value[i] <- 2*min[i]
+        max[i] <- InvChat.Ind(dataset[[i]], 0.999)
+      }
+      min <- max(min)
+      max <- max(max)
+      value <- max(min, min(value))
+      try(sliderInput("ulsi_ind", "", min=min, max=max, step=1, value=value), silent=TRUE)
+    } else return()
   })
   
   output$choose_ulsi_sam <- renderUI({
-    if(input$data_type != "sam" | input$ul_sam_method != "si") return()
+    if(input$data_type != "sam" || input$ul_sam_method != "si") return()
     dataset <- selectedData()
     names(dataset) <- input$dataset
     min <- max <- value <- 0
@@ -174,12 +175,12 @@ shinyServer(function(input, output) {
     }
     min <- max(min)
     max <- max(max)
-    value <- max(value)
-    sliderInput("ulsi_sam", "", min=min, max=max, step=1, value=value)
+    value <- max(min, min(value))
+    try(sliderInput("ulsi_sam", "", min=min, max=max, step=1, value=value), silent=TRUE)
   })
   
   output$choose_ulsc_ind <- renderUI({
-    if(input$data_type != "ind" | input$ul_ind_method != "sc") return()
+    if(input$data_type != "ind" || input$ul_ind_method != "sc") return()
     dataset <- selectedData()
     names(dataset) <- input$dataset
     min <- value <- 0
@@ -194,7 +195,7 @@ shinyServer(function(input, output) {
   })
   
   output$choose_ulsc_sam <- renderUI({
-    if(input$data_type != "sam" | input$ul_sam_method != "sc") return()
+    if(input$data_type != "sam" || input$ul_sam_method != "sc") return()
     dataset <- selectedData()
     names(dataset) <- input$dataset
     min <- value <- 0
@@ -212,11 +213,11 @@ shinyServer(function(input, output) {
   # Rarefaction and Prediction
   #############################################################################
   out.iNEXT <- reactive({
-    if(is.null(input$data_type) | is.null(input$ul_ind_method) | is.null(input$ul_sam_method)) return()
+    if(is.null(input$data_type) || is.null(input$ul_ind_method) || is.null(input$ul_sam_method)) return()
     dataset <- selectedData()
     names(dataset) <- input$dataset
     
-    if(is.null(input$knots) | input$knots<=5) {
+    if(is.null(input$knots) || input$knots<=5) {
       knots=4
     } else { 
       knots <- input$knots 
@@ -227,19 +228,19 @@ shinyServer(function(input, output) {
     nboot <- round(input$nboot)
     out <- list()
     for(i in seq_along(dataset)){
-      if(input$data_type == "ind" & input$ul_ind_method == "si"){
+      if(input$data_type == "ind" && input$ul_ind_method == "si"){
         end <- input$ulsi_ind
         out[[i]] <- iNEXT.Ind(dataset[[i]], Knots=knots, nboot=nboot, se=se, endpoint=end)
       }
-      if(input$data_type == "ind" & input$ul_ind_method == "sc"){
+      if(input$data_type == "ind" && input$ul_ind_method == "sc"){
         end <- InvChat.Ind(dataset[[i]], input$ulsc_ind)
         out[[i]] <- iNEXT.Ind(dataset[[i]], Knots=knots, nboot=nboot, se=se, endpoint=end)
       }
-      if(input$data_type == "sam" & input$ul_sam_method == "si"){
+      if(input$data_type == "sam" && input$ul_sam_method == "si"){
         end <- input$ulsi_sam
         out[[i]] <- iNEXT.Sam(dataset[[i]], Knots=knots, nboot=nboot, se=se, endpoint=end)
       }
-      if(input$data_type == "sam" & input$ul_sam_method == "sc"){
+      if(input$data_type == "sam" && input$ul_sam_method == "sc"){
         end <- InvChat.Sam(dataset[[i]], input$ulsc_sam)
         out[[i]] <- iNEXT.Sam(dataset[[i]], Knots=knots, nboot=nboot, se=se, endpoint=end)
       }
