@@ -265,9 +265,10 @@ shinyServer(function(input, output) {
       tab[[i]] <- print(xtable(data, caption=caption, digits=digits), 
                         type='html', 
                         caption.placement='top',
-                        html.table.attributes="class='data table table-bordered table-condensed'")      
+                        html.table.attributes="class='data table table-bordered table-condensed'",
+                        print.results=FALSE)
     }
-    HTML(paste(unlist(tab),collapse=""))
+    HTML(paste(unlist(tab),collapse="\n"))
   })
   
   #Download iNEXT output 
