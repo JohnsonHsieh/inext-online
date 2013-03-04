@@ -4,7 +4,7 @@ library(shiny)
 shinyUI(pageWithSidebar(
   
   #app title
-  headerPanel("iNext Online"),
+  headerPanel("iNEXT Online"),
   #input
   sidebarPanel(
     tags$head(
@@ -17,8 +17,8 @@ shinyUI(pageWithSidebar(
     ),
     p(h4("Data setting")),
     wellPanel(
-      selectInput("data_type", "Select analysed data type:", 
-                  c("Individual-based"="ind", "Sample-based"="sam")),
+      selectInput("data_type", "Select data type:", 
+                  c("Abundance data"="ind", "Incidence data"="sam")),
       uiOutput("choose_dataset"),
       p(em("Using ctrl / command key to select multiple dataset you want")),
       
@@ -79,12 +79,12 @@ shinyUI(pageWithSidebar(
       p(em("Setting the upper limit by sliderbar."))
     ),
     
-    checkboxInput("advSet", h4("Advanced Settings"), FALSE),
-    conditionalPanel(condition = "input.advSet == true", 
-                     helpText("coming soon ...")),
+    #checkboxInput("advSet", h4("Advanced Settings"), FALSE),
+    #conditionalPanel(condition = "input.advSet == true", 
+    #                 helpText("coming soon ...")),
     
-    helpText("Written and designed by T.C. Hsieh using shiny",
-             "from RStudio and Inc. (2013).")
+    includeMarkdown("www/footnote.md")    
+    
   ),
   
   mainPanel(tabsetPanel(
@@ -142,35 +142,10 @@ shinyUI(pageWithSidebar(
              HTML("species richness estimates for rarefied sample and extrapolated sample with 
                   sample coverage up to double the reference sample size."),
              downloadLink("dlfig3", "Download as PDF")
-             ),
-    tabPanel("About",
-             helpText("The program iNEXT (iNterpolation and EXTrapolation) is written 
-                      in the R language. The user provides a vector of abundances of 
-                      individual species (abundance-based). iNEXT computes the following 
-                      species richness estimates and associated 95% confidence intervals:"),    
-             helpText("(1) Sample-size-based rarefaction and extrapolation: 
-                      species richness estimates for rarefied and extrapolated samples
-                      up to double the original sample size (= the reference sample size). 
-                      Refer to Colwell et al. (2012) for details."),             
-             helpText("(2) Coverage-based rarefaction and extrapolation: 
-                      species richness estimates for rarefied and extrapolated samples for
-                      coverage of up to double the reference sample size.
-                      Refer to Chao and Jost (2012) for details."),             
-             helpText("Program iNEXT also plots the following three integrated sampling
-                      curves suggested in Chao et al. (2013) for unified sampling and 
-                      estimation in biodiversity studies."),
-             helpText("(1) Sample-size-based rarefaction and extrapolation sampling curve:
-                      species richness estimates for a rarefied and extrapolated sample 
-                      with sample size up to double the reference sample size."),
-             helpText("(2) Sample completeness curve: sample completeness 
-                      (as measured by sample coverage) with respect to sample size. 
-                      This curve provides a bridge between sample-size- and coverage-based 
-                      rarefaction and extrapolation."),
-             helpText("(3) Coverage-based rarefaction and extrapolation sampling curve: 
-                      species richness estimates for rarefied sample and extrapolated 
-                      sample with sample coverage up to double the reference sample size."), 
-             a(href = "http://chao.stat.nthu.edu.tw/spade_userguide.pdf", "Click here to download the help document")
-    )
-             
+    ),
+    tabPanel("How to Cite", includeMarkdown("www/cite.md")),
+    tabPanel("About", includeMarkdown("www/about.md"))
+    
+    
   ))
 ))
