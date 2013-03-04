@@ -33,7 +33,7 @@ summary.Sam <- function(dat){
     out
   }
   out <- t(apply(as.matrix(dat), 2, Fun))
-  colnames(out) <- c("T", "U", "Sobs", "Shat", "Chat", paste("Q",1:10, sep=""))
+  colnames(out) <- c("T", "U", "S.obs", "S.hat", "C.hat", paste("Q",1:10, sep=""))
   as.data.frame(out)
 }
 

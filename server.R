@@ -10,7 +10,7 @@ source("iNEXT.R")
 
 tempRD1 <- paste(tempfile(), ".RData", sep="")
 tempRD2 <- paste(tempfile(), ".RData", sep="")
-temphtml <- paste(tempfile(), ".html", sep="")
+temphtml <- paste(tempfile(), ".html", sep="") 
 
 shinyServer(function(input, output) {
   source('sub.R', local = TRUE)
@@ -50,7 +50,7 @@ shinyServer(function(input, output) {
         } 
       }
     }
-    selectInput("dataset", "Select dataset to show:", choices  = dat, selected = dat[1], multiple = TRUE)
+    selectInput("dataset", "Select dataset:", choices  = dat, selected = dat[1], multiple = TRUE)
   })
   
   output$ui_import_ind <- renderUI({
@@ -191,7 +191,7 @@ shinyServer(function(input, output) {
     }
     min <- max(min)
     value <- max(value)
-    sliderInput("ulsc_ind", "", min=round(min,3), max=0.999, step=(1-min)/100, value=round(value,3))
+    try(sliderInput("ulsc_ind", "", min=round(min,3), max=0.999, step=(1-min)/100, value=round(value,3)), silent=TRUE)
   })
   
   output$choose_ulsc_sam <- renderUI({
@@ -206,7 +206,7 @@ shinyServer(function(input, output) {
     }
     min <- max(min)
     value <- max(value)
-    sliderInput("ulsc_sam", "", min=round(min,3), max=0.999, step=(1-min)/100, value=round(value,3))
+    try(sliderInput("ulsc_sam", "", min=round(min,3), max=0.999, step=(1-min)/100, value=round(value,3)),silent=TRUE)
   })
   
   #############################################################################
@@ -352,4 +352,3 @@ shinyServer(function(input, output) {
   
   
 })
-
