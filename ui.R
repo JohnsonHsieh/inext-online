@@ -15,14 +15,14 @@ shinyUI(pageWithSidebar(
       #tags$style(type='text/css', ".well { padding: 5px; margin-bottom: 5px; max-width: 300px; }"),
       tags$style(type='text/css', ".span4 { max-width: 300px; }")
     ),
-    p(h4("Data setting")),
+    p(h4("Data Setting")),
     wellPanel(
       selectInput("data_type", "Select data type:", 
                   c("Abundance data"="ind", "Incidence data"="sam")),
       uiOutput("choose_dataset"),
       p(em("Using ctrl / command key to select multiple dataset you want")),
       
-      checkboxInput("import_data", strong("Import your data"), FALSE),
+      checkboxInput("import_data", strong("Import data"), FALSE),
       conditionalPanel(
         condition="input.import_data==true",
         
@@ -41,10 +41,6 @@ shinyUI(pageWithSidebar(
     
     p(h4("General Setting")),
     wellPanel(
-      numericInput("knots", "Number of knots", 
-                   min=20, max=200, step=10, value=40),
-      numericInput("nboot", "Number of bootstraps", 
-                   min=0, max=500, step=20, value=0),
       #p(em("Setting the number of bootstrap to zero will not compute 95% confidence band.")),
       
       conditionalPanel(
@@ -76,7 +72,11 @@ shinyUI(pageWithSidebar(
           uiOutput("choose_ulsc_sam")
         )
       ),
-      p(em("Setting the upper limit by sliderbar."))
+      p(em("Setting the upper limit by sliderbar.")),
+      numericInput("knots", "Number of knots", 
+                   min=20, max=200, step=10, value=40),
+      numericInput("nboot", "Number of bootstraps", 
+                   min=0, max=500, step=20, value=0)
     ),
     
     #checkboxInput("advSet", h4("Advanced Settings"), FALSE),
@@ -89,7 +89,7 @@ shinyUI(pageWithSidebar(
   
   mainPanel(tabsetPanel(
     tabPanel("Data Summary", 
-             h3("Basic data infomation"),
+             h3("Basic data information"),
              checkboxInput("showRaw", "Show raw data (Observed frequencies)", FALSE),
              conditionalPanel(
                condition="input.showRaw == true",
@@ -142,10 +142,10 @@ shinyUI(pageWithSidebar(
              HTML("species richness estimates for rarefied sample and extrapolated sample with 
                   sample coverage up to double the reference sample size."),
              downloadLink("dlfig3", "Download as PDF")
-    ),
+             ),
     tabPanel("How to Cite", includeMarkdown("www/cite.md")),
-    tabPanel("About", includeMarkdown("www/about.md"))
+    tabPanel("User Guide", includeMarkdown("www/about.md"))
     
     
+             ))
   ))
-))

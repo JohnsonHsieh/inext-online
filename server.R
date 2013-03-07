@@ -60,7 +60,7 @@ shinyServer(function(input, output) {
   
   output$ui_import_sam <- renderUI({
     tags$textarea(id="copyAndPaste_sam", rows=5, 
-                  "Y_1500 200   1   1   1   1   1   1   1   1   1   1   1   1   1   2   2   2   2   3   3   4   4   5   5   5   5   6   6   9   9   9   9  11  11 17  17  18  19  23  23  24  25  25  25  29  30  32  33  43  50  53  73  74  76  79 113 144")
+                  "Ant_1500m 200 144 113 79 76 74 73 53 50 43 33 32 30 29 25 25 25 24 23 23 19 18 17 17 11 11 9 9 9 9 6 6 5 5 5 5 4 4 3 3 2 2 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 \nAnt_2000m 200 80 59 34 23 19 15 13 8 8 4 3 2 2 1")
   })
   
   loadPaste <- reactive({
@@ -159,6 +159,7 @@ shinyServer(function(input, output) {
       min <- max(min)
       max <- max(max)
       value <- max(min, min(value))
+      value <- min(value, max)
       try(sliderInput("ulsi_ind", "", min=min, max=max, step=1, value=value), silent=TRUE)
     } else return()
   })
@@ -176,6 +177,7 @@ shinyServer(function(input, output) {
     min <- max(min)
     max <- max(max)
     value <- max(min, min(value))
+    value <- min(value, max)
     try(sliderInput("ulsi_sam", "", min=min, max=max, step=1, value=value), silent=TRUE)
   })
   
@@ -190,7 +192,8 @@ shinyServer(function(input, output) {
       value[i] <- Chat.Ind(dataset[[i]], 2*n)
     }
     min <- max(min)
-    value <- max(value)
+    value <- max(min, min(value))
+    value <- min(value, 0.999)
     try(sliderInput("ulsc_ind", "", min=round(min,3), max=0.999, step=(1-min)/100, value=round(value,3)), silent=TRUE)
   })
   
@@ -205,7 +208,8 @@ shinyServer(function(input, output) {
       value[i] <- Chat.Sam(dataset[[i]], 2*n)
     }
     min <- max(min)
-    value <- max(value)
+    value <- max(min, min(value))
+    value <- min(value, 0.999)
     try(sliderInput("ulsc_sam", "", min=round(min,3), max=0.999, step=(1-min)/100, value=round(value,3)),silent=TRUE)
   })
   
