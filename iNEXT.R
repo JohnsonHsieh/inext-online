@@ -226,8 +226,9 @@ Chat.Sam <- function(Spec, t){
 iNEXT.Ind <- function(Spec, endpoint=2*sum(Spec), Knots=40, se=TRUE, nboot=50)
 {
   n <- sum(Spec)  	  	#sample size
-  m <- c(floor(seq.int(1, sum(Spec)-1, length=floor(Knots/2)-1)), sum(Spec), floor(seq.int(sum(Spec)+1, to=endpoint, length=floor(Knots/2))))
-  m <- c(1, m[-1])      
+  #m <- c(floor(seq.int(1, sum(Spec)-1, length=floor(Knots/2)-1)), sum(Spec), floor(seq.int(sum(Spec)+1, to=endpoint, length=floor(Knots/2))))
+  #m <- c(1, m[-1])
+  m <- unique(c(floor(seq.int(1, n, length=floor(Knots/2))), floor(seq.int(n, to=endpoint, length=floor(Knots/2)+1))))
   D0.hat <- D0hat.Ind(Spec, m)
   C.hat <- Chat.Ind(Spec, m)
   if(se==TRUE & nboot > 0)
@@ -276,8 +277,9 @@ iNEXT.Ind <- function(Spec, endpoint=2*sum(Spec), Knots=40, se=TRUE, nboot=50)
 iNEXT.Sam <- function(Spec, endpoint=2*Spec[1], Knots=40, se=TRUE, nboot=50)
 {
   nT <- Spec[1]
-  t <- c(floor(seq.int(1, nT-1, length=floor(Knots/2)-1)), nT, floor(seq.int(nT+1, to=endpoint, length=floor(Knots/2))))
-  t <- c(1, t[-1])
+  #t <- c(floor(seq.int(1, nT-1, length=floor(Knots/2)-1)), nT, floor(seq.int(nT+1, to=endpoint, length=floor(Knots/2))))
+  #t <- c(1, t[-1])
+  t <- unique(c(floor(seq.int(1, nT, length=floor(Knots/2))), floor(seq.int(nT, to=endpoint, length=floor(Knots/2)+1))))
   D0.hat <- D0hat.Sam(Spec, t) 
   C.hat <- Chat.Sam(Spec, t)
   if(se==TRUE & nboot > 0)
@@ -450,6 +452,6 @@ InvChat.Sam <- function(Spec, sc)
 }
 
 
-out1 <- iNEXT.Ind(Oldgrowth)
-out2 <- iNEXT.Ind(Secondgrowth)
-out <- list(out1, out2)
+#out1 <- iNEXT.Ind(Oldgrowth)
+#out2 <- iNEXT.Ind(Secondgrowth)
+#out <- list(out1, out2)

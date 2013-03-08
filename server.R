@@ -20,8 +20,7 @@ shinyServer(function(input, output) {
   #############################################################################  
   
   output$choose_dataset <- renderUI({
-    #Add user upload data in the feture
-    
+    #Add user upload data in the feture    
     
     if(input$data_type=="ind") {
       
@@ -60,7 +59,7 @@ shinyServer(function(input, output) {
   
   output$ui_import_sam <- renderUI({
     tags$textarea(id="copyAndPaste_sam", rows=5, 
-                  "Y_1500 200   1   1   1   1   1   1   1   1   1   1   1   1   1   2   2   2   2   3   3   4   4   5   5   5   5   6   6   9   9   9   9  11  11 17  17  18  19  23  23  24  25  25  25  29  30  32  33  43  50  53  73  74  76  79 113 144")
+                  "Ants_1500m 200 144 113 79 76 74 73 53 50 43 33 32 30 29 25 25 25 24 23 23 19 18 17 17 11 11 9 9 9 9 6 6 5 5 5 5 4 4 3 3 2 2 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 \nAnts_2000m 200 80 59 34 23 19 15 13 8 8 4 3 2 2 1")
   })
   
   loadPaste <- reactive({
@@ -94,6 +93,7 @@ shinyServer(function(input, output) {
       out <- loadPaste()
       data.names <- input$dataset
       selected <- which(names(out)==input$dataset)
+      if(length(selected)==0) selected <- 1
       dataset <- list()
       for(i in 1:length(selected)){
         k <- selected[i]
@@ -146,67 +146,88 @@ shinyServer(function(input, output) {
   # Slider control
   #############################################################################  
   
-  output$choose_ulsi_ind <- renderUI({
-    if (input$data_type == "ind" && input$ul_ind_method == "si"){
-      dataset <- selectedData()
-      names(dataset) <- input$dataset
-      min <- max <- value <- 0
+  endpoint <- reactive({
+    dataset <- selectedData()
+    names(dataset) <- input$dataset
+    out <- list(min=0, value=0, max=0)
+    min <- max <- value <- 0
+    if (input$data_type == "ind" && input$ul_ind_method == "si") {
       for(i in seq_along(dataset)){  
         min[i] <- sum(dataset[[i]])
-        value[i] <- 2*min[i]
+        value[i] <- 2 * sum(dataset[[i]])
         max[i] <- InvChat.Ind(dataset[[i]], 0.999)
       }
       min <- max(min)
       max <- max(max)
       value <- max(min, min(value))
-      try(sliderInput("ulsi_ind", "", min=min, max=max, step=1, value=value), silent=TRUE)
-    } else return()
+      value <- min(value, max)
+    } else if (input$data_type == "ind" && input$ul_ind_method == "sc") {
+      for(i in seq_along(dataset)){
+        n <- sum(dataset[[i]])
+        min[i] <- Chat.Ind(dataset[[i]], n)
+        value[i] <- Chat.Ind(dataset[[i]], 2*n)
+      }
+      min <- max(min)
+      max <- 0.999
+      value <- max(min, min(value))
+      value <- min(value, max)
+    } else if (input$data_type == "sam" && input$ul_sam_method == "si") {
+      for(i in seq_along(dataset)){
+        min[i] <- dataset[[i]][1]
+        value[i] <- 2*min[i]
+        max[i] <- InvChat.Sam(dataset[[i]], 0.999)
+      }
+      min <- max(min)
+      max <- max(max)
+      value <- max(min, min(value))
+      value <- min(value, max) 
+    } else if (input$data_type == "sam" && input$ul_sam_method == "sc") {
+      for(i in seq_along(dataset)){
+        n <- max(dataset[[i]])
+        min[i] <- Chat.Sam(dataset[[i]], n)
+        value[i] <- Chat.Sam(dataset[[i]], 2*n)
+      }
+      min <- max(min)
+      max <- 0.999
+      value <- max(min, min(value))
+      value <- min(value, max)
+    }
+    out$min <- min
+    out$max <- max
+    out$value <- value
+    return(out)
+  })  
+  
+  output$choose_ulsi_ind <- renderUI({
+    out <- endpoint()
+    min <- out$min
+    max <- out$max
+    value <- out$value
+    try(sliderInput("ulsi_ind", "", min=min, max=max, step=1, value=value), silent=TRUE)
   })
   
   output$choose_ulsi_sam <- renderUI({
-    if(input$data_type != "sam" || input$ul_sam_method != "si") return()
-    dataset <- selectedData()
-    names(dataset) <- input$dataset
-    min <- max <- value <- 0
-    for(i in seq_along(dataset)){
-      min[i] <- dataset[[i]][1]
-      value[i] <- 2*min[i]
-      max[i] <- InvChat.Sam(dataset[[i]], 0.999)
-    }
-    min <- max(min)
-    max <- max(max)
-    value <- max(min, min(value))
+    out <- endpoint()
+    min <- out$min
+    max <- out$max
+    value <- out$value
     try(sliderInput("ulsi_sam", "", min=min, max=max, step=1, value=value), silent=TRUE)
   })
   
   output$choose_ulsc_ind <- renderUI({
-    if(input$data_type != "ind" || input$ul_ind_method != "sc") return()
-    dataset <- selectedData()
-    names(dataset) <- input$dataset
-    min <- value <- 0
-    for(i in seq_along(dataset)){
-      n <- sum(dataset[[i]])
-      min[i] <- Chat.Ind(dataset[[i]], n)
-      value[i] <- Chat.Ind(dataset[[i]], 2*n)
-    }
-    min <- max(min)
-    value <- max(value)
-    try(sliderInput("ulsc_ind", "", min=round(min,3), max=0.999, step=(1-min)/100, value=round(value,3)), silent=TRUE)
+    out <- endpoint()
+    min <- out$min
+    max <- out$max
+    value <- out$value
+    try(sliderInput("ulsc_ind", "", min=round(min,3), max=max, step=(1-min)/100, value=round(value,3)), silent=TRUE)
   })
   
   output$choose_ulsc_sam <- renderUI({
-    if(input$data_type != "sam" || input$ul_sam_method != "sc") return()
-    dataset <- selectedData()
-    names(dataset) <- input$dataset
-    min <- value <- 0
-    for(i in seq_along(dataset)){
-      n <- max(dataset[[i]])
-      min[i] <- Chat.Sam(dataset[[i]], n)
-      value[i] <- Chat.Sam(dataset[[i]], 2*n)
-    }
-    min <- max(min)
-    value <- max(value)
-    try(sliderInput("ulsc_sam", "", min=round(min,3), max=0.999, step=(1-min)/100, value=round(value,3)),silent=TRUE)
+    out <- endpoint()
+    min <- out$min
+    max <- out$max
+    value <- out$value
+    try(sliderInput("ulsc_sam", "", min=round(min,3), max=max, step=(1-min)/100, value=round(value,3)),silent=TRUE)
   })
   
   #############################################################################
