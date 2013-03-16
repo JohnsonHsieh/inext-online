@@ -416,7 +416,9 @@ InvChat.Ind <- function(x, sc)
   A <- ifelse(f2 > 0, (n-1)*f1/((n-1)*f1+2*f2), (n-1)*f1/((n-1)*f1+2))
   Chat <- 1 - f1/n*A
   Sub <- function(sc){
-    if(sc < Chat) {
+    if(Chat == 1) {
+      mhat <- n
+    } else if(sc < Chat) {
       f <- function(m) { 1-sum(x / n * exp(lchoose(n - x, m)-lchoose(n - 1, m))) - sc}
       #f <- function(m) { 1-sum(x / n * exp(mylbeta(n - m, m)-mylbeta(n - m - x + 1, m))) - sc}
       mhat <- ceiling (uniroot(f, lower=1, upper=n-1)$root)      
@@ -441,7 +443,9 @@ InvChat.Sam <- function(Spec, sc)
   Q2 <- sum(y == 2)
   A <- ifelse(Q2 > 0, (nT-1)*Q1/((nT-1)*Q1+2*Q2), (nT-1)*Q1/((nT-1)*Q1+2))
   Chat <- 1 - Q1/U*A
-  if(Chat > sc){
+  if(Chat == 1){
+    t <- nT  
+  } else if(Chat > sc){
     t <- which.min(abs(Chat.Sam(Spec,1:nT)-sc))
   } else {
     t <- ceiling (log((1-sc)*U/Q1)/log(A) - 1 + nT)

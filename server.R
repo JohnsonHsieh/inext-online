@@ -8,20 +8,19 @@ data(list='ex_data')
 source("iNEXT.R")
 
 
-tempRD1 <- paste(tempfile(), ".RData", sep="")
-tempRD2 <- paste(tempfile(), ".RData", sep="")
-temphtml <- paste(tempfile(), ".html", sep="") 
-
 shinyServer(function(input, output) {
+  tempRD1 <- paste(tempfile(), ".RData", sep="")
+  tempRD2 <- paste(tempfile(), ".RData", sep="")
+  temphtml <- paste(tempfile(), ".html", sep="") 
   source('sub.R', local = TRUE)
+  tol <- 0.1^3
   
   #############################################################################
   # Data setting
   #############################################################################  
   
   output$choose_dataset <- renderUI({
-    #Add user upload data in the feture
-    
+    #Add user upload data in the feture    
     
     if(input$data_type=="ind") {
       
@@ -60,8 +59,10 @@ shinyServer(function(input, output) {
   
   output$ui_import_sam <- renderUI({
     tags$textarea(id="copyAndPaste_sam", rows=5, 
-                  "Ant_1500m 200 144 113 79 76 74 73 53 50 43 33 32 30 29 25 25 25 24 23 23 19 18 17 17 11 11 9 9 9 9 6 6 5 5 5 5 4 4 3 3 2 2 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 \nAnt_2000m 200 80 59 34 23 19 15 13 8 8 4 3 2 2 1")
+                  "Ants_1500m 200 144 113 79 76 74 73 53 50 43 33 32 30 29 25 25 25 24 23 23 19 18 17 17 11 11 9 9 9 9 6 6 5 5 5 5 4 4 3 3 2 2 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 \nAnts_2000m 200 80 59 34 23 19 15 13 8 8 4 3 2 2 1")
   })
+  
+  
   
   loadPaste <- reactive({
     if(input$data_type=="ind"){
@@ -80,6 +81,8 @@ shinyServer(function(input, output) {
     out
   })
   
+
+  
   selectedData <- reactive({
     if(is.null(input$dataset)) dataset <- NULL
     if(input$data_type=="ind"){
@@ -92,10 +95,17 @@ shinyServer(function(input, output) {
       names(dataset) <- input$dataset
     } else {
       out <- loadPaste()
-      data.names <- input$dataset
-      selected <- which(names(out)==input$dataset)
+      selected <- 1
+      if(is.null(input$dataset)) {
+        selected <- 1
+      } else {
+        for(i in seq_along(input$dataset)){
+          selected[i] <- which(names(out)==input$dataset[i])
+        }
+        #selected <- which(names(out)==input$dataset)
+      }
       dataset <- list()
-      for(i in 1:length(selected)){
+      for(i in seq_along(selected)){
         k <- selected[i]
         dataset[[i]] <- out[[k]]
       }
@@ -106,7 +116,9 @@ shinyServer(function(input, output) {
   })
   
   
-  
+  output$datanames <- renderPrint(
+    selectedData()
+  )
   
   
   #############################################################################
@@ -115,14 +127,14 @@ shinyServer(function(input, output) {
   
   output$dataview <- renderPrint({  
     dataset <- selectedData()
-    names(dataset) <- input$dataset
+    #names(dataset) <- input$dataset
     lapply(dataset, function(dat) sort(subset(dat, dat>0), dec=TRUE))    
   })
   
   #Show basic data information
   output$summary <- renderPrint({
     dataset <- selectedData()
-    names(dataset) <- input$dataset
+    #names(dataset) <- input$dataset
     #dataset <- loadPaste()
     if(input$data_type == "ind") {
       out <- lapply(dataset, summary.Ind)  
@@ -146,71 +158,90 @@ shinyServer(function(input, output) {
   # Slider control
   #############################################################################  
   
-  output$choose_ulsi_ind <- renderUI({
-    if (input$data_type == "ind" && input$ul_ind_method == "si"){
-      dataset <- selectedData()
-      names(dataset) <- input$dataset
-      min <- max <- value <- 0
+  endpoint <- reactive({
+    dataset <- selectedData()
+    #names(dataset) <- input$dataset
+    out <- list(min=0, value=0, max=0)
+    min <- max <- value <- 0
+    if (input$data_type == "ind" && input$ul_ind_method == "si") {
       for(i in seq_along(dataset)){  
         min[i] <- sum(dataset[[i]])
-        value[i] <- 2*min[i]
-        max[i] <- InvChat.Ind(dataset[[i]], 0.999)
+        value[i] <- 2 * sum(dataset[[i]])
+        max[i] <- InvChat.Ind(dataset[[i]], 1-tol)
       }
       min <- max(min)
-      max <- max(max)
+      max <- max(max, 4*min)
       value <- max(min, min(value))
       value <- min(value, max)
-      try(sliderInput("ulsi_ind", "", min=min, max=max, step=1, value=value), silent=TRUE)
-    } else return()
+    } else if (input$data_type == "ind" && input$ul_ind_method == "sc") {
+      for(i in seq_along(dataset)){
+        n <- sum(dataset[[i]])
+        min[i] <- Chat.Ind(dataset[[i]], n)
+        value[i] <- Chat.Ind(dataset[[i]], 2*n)
+      }
+      min <- max(min)
+      max <- 1-tol
+      value <- max(min, min(value))
+      value <- min(value, max)
+    } else if (input$data_type == "sam" && input$ul_sam_method == "si") {
+      for(i in seq_along(dataset)){
+        min[i] <- dataset[[i]][1]
+        value[i] <- 2*min[i]
+        max[i] <- InvChat.Sam(dataset[[i]], 1-tol)
+      }
+      min <- max(min)
+      max <- max(max, 4*min)
+      value <- max(min, min(value))
+      value <- min(value, max) 
+    } else if (input$data_type == "sam" && input$ul_sam_method == "sc") {
+      for(i in seq_along(dataset)){
+        n <- max(dataset[[i]])
+        min[i] <- Chat.Sam(dataset[[i]], n)
+        value[i] <- Chat.Sam(dataset[[i]], 2*n)
+      }
+      min <- max(min)
+      max <- 1-tol
+      value <- max(min, min(value))
+      value <- min(value, max)
+    }
+    out$min <- min
+    out$max <- max
+    out$value <- value
+    return(out)
+  })  
+  
+  output$choose_ulsi_ind <- renderUI({
+    out <- endpoint()
+    min <- out$min
+    max <- out$max
+    value <- out$value
+    try(sliderInput("ulsi_ind", "", min=min, max=max, step=1, value=value), silent=TRUE)
   })
   
   output$choose_ulsi_sam <- renderUI({
-    if(input$data_type != "sam" || input$ul_sam_method != "si") return()
-    dataset <- selectedData()
-    names(dataset) <- input$dataset
-    min <- max <- value <- 0
-    for(i in seq_along(dataset)){
-      min[i] <- dataset[[i]][1]
-      value[i] <- 2*min[i]
-      max[i] <- InvChat.Sam(dataset[[i]], 0.999)
-    }
-    min <- max(min)
-    max <- max(max)
-    value <- max(min, min(value))
-    value <- min(value, max)
+    out <- endpoint()
+    min <- out$min
+    max <- out$max
+    value <- out$value
     try(sliderInput("ulsi_sam", "", min=min, max=max, step=1, value=value), silent=TRUE)
   })
   
   output$choose_ulsc_ind <- renderUI({
-    if(input$data_type != "ind" || input$ul_ind_method != "sc") return()
-    dataset <- selectedData()
-    names(dataset) <- input$dataset
-    min <- value <- 0
-    for(i in seq_along(dataset)){
-      n <- sum(dataset[[i]])
-      min[i] <- Chat.Ind(dataset[[i]], n)
-      value[i] <- Chat.Ind(dataset[[i]], 2*n)
-    }
-    min <- max(min)
-    value <- max(min, min(value))
-    value <- min(value, 0.999)
-    try(sliderInput("ulsc_ind", "", min=round(min,3), max=0.999, step=(1-min)/100, value=round(value,3)), silent=TRUE)
+    out <- endpoint()
+    min <- out$min
+    max <- out$max
+    value <- out$value
+    #try(sliderInput("ulsc_ind", "", min=round(min,3), max=max, step=(1-min)/100, value=round(value,3)), silent=TRUE)
+    tryCatch(sliderInput("ulsc_ind", "", min=round(min,3), max=max, step=(1-min)/100, value=round(value,3)), error=function(e) {"The estimation of sample coverage (C.hat) is too close to 1, please try 'Sample size' method."})
   })
   
   output$choose_ulsc_sam <- renderUI({
-    if(input$data_type != "sam" || input$ul_sam_method != "sc") return()
-    dataset <- selectedData()
-    names(dataset) <- input$dataset
-    min <- value <- 0
-    for(i in seq_along(dataset)){
-      n <- max(dataset[[i]])
-      min[i] <- Chat.Sam(dataset[[i]], n)
-      value[i] <- Chat.Sam(dataset[[i]], 2*n)
-    }
-    min <- max(min)
-    value <- max(min, min(value))
-    value <- min(value, 0.999)
-    try(sliderInput("ulsc_sam", "", min=round(min,3), max=0.999, step=(1-min)/100, value=round(value,3)),silent=TRUE)
+    out <- endpoint()
+    min <- out$min
+    max <- out$max
+    value <- out$value
+    #try(sliderInput("ulsc_sam", "", min=round(min,3), max=max, step=(1-min)/100, value=round(value,3)),silent=TRUE)
+    tryCatch(sliderInput("ulsc_sam", "", min=round(min,3), max=max, step=(1-min)/100, value=round(value,3)), error=function(e) {"The estimation of sample coverage (C.hat) is too close to 1, please try 'Sample size' method."})
   })
   
   #############################################################################
@@ -219,7 +250,7 @@ shinyServer(function(input, output) {
   out.iNEXT <- reactive({
     if(is.null(input$data_type) || is.null(input$ul_ind_method) || is.null(input$ul_sam_method)) return()
     dataset <- selectedData()
-    names(dataset) <- input$dataset
+    #names(dataset) <- input$dataset
     
     if(is.null(input$knots) || input$knots<=5) {
       knots=4
@@ -250,6 +281,7 @@ shinyServer(function(input, output) {
       }
     }
     names(out) <- input$dataset
+    saveRDS(out, tempRD2) 
     return(out)    
   })
   
@@ -281,6 +313,7 @@ shinyServer(function(input, output) {
     filename = function() { paste('iNEXToutput-', Sys.Date(), '.csv', sep='') },
     content = function(file) { 
       out <- readRDS(tempRD2)
+      #out <- out.iNEXT()
       saveList2csv(out, file)
     }
   )

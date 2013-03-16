@@ -20,7 +20,7 @@ shinyUI(pageWithSidebar(
       selectInput("data_type", "Select data type:", 
                   c("Abundance data"="ind", "Incidence data"="sam")),
       uiOutput("choose_dataset"),
-      p(em("Using ctrl / command key to select multiple dataset you want")),
+      p(em("Using ctrl / command key to select multiple datasets you want")),
       
       checkboxInput("import_data", strong("Import data"), FALSE),
       conditionalPanel(
@@ -46,7 +46,7 @@ shinyUI(pageWithSidebar(
       conditionalPanel(
         condition = "input.data_type == 'ind'",
         selectInput("ul_ind_method", "Endpoint(s) control:", 
-                    c("Number of individuals"="si", "Sample coverage"="sc")
+                    c("Sample size"="si", "Sample coverage"="sc")
         ),
         conditionalPanel(
           condition = "input.ul_ind_method == 'si'",
@@ -90,6 +90,7 @@ shinyUI(pageWithSidebar(
   mainPanel(tabsetPanel(
     tabPanel("Data Summary", 
              h3("Basic data information"),
+             #verbatimTextOutput("datanames"),
              checkboxInput("showRaw", "Show raw data (Observed frequencies)", FALSE),
              conditionalPanel(
                condition="input.showRaw == true",
@@ -105,8 +106,8 @@ shinyUI(pageWithSidebar(
              
     ),
     
-    tabPanel("Rarefaction and Predction",
-             h3("Rarefaction and Predction"),
+    tabPanel("Rarefaction/Extrapolation",
+             h3("Rarefaction and Extrapolation"),
              uiOutput("inext"),       
              downloadLink("dlinext", "Download as csv file"),
              conditionalPanel(
@@ -117,7 +118,7 @@ shinyUI(pageWithSidebar(
                includeMarkdown("www/inext_sam.md"))                        
     ),
     
-    tabPanel("Plot Figures",
+    tabPanel("Figure plots",
              HTML("<center>"),
              HTML("<h4>(1) Sample-size-based rarefaction and extrapolation sampling curve</h4>"),  
              plotOutput("fig1", width="400px", height="400px"),
@@ -143,7 +144,7 @@ shinyUI(pageWithSidebar(
                   sample coverage up to double the reference sample size."),
              downloadLink("dlfig3", "Download as PDF")
              ),
-    tabPanel("How to Cite", includeMarkdown("www/cite.md")),
+    #tabPanel("How to Cite", includeMarkdown("www/cite.md")),
     tabPanel("User Guide", includeMarkdown("www/about.md"))
     
     
