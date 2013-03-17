@@ -1,19 +1,35 @@
+GTM <- "
+<!-- Google Tag Manager -->
+  <noscript><iframe src=\"//www.googletagmanager.com/ns.html?id=GTM-BM4R\"
+height=\"0\" width=\"0\" style=\"display:none;visibility:hidden\"></iframe></noscript>
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                                                          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                               j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                                 '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-BM4R');</script>
+  <!-- End Google Tag Manager -->
+"
+  
+
+
 library(shiny)
 
 # Define UI
 shinyUI(pageWithSidebar(
-  
+
   #app title
   headerPanel("iNEXT Online"),
   #input
   sidebarPanel(
     tags$head(
+      div(id="GTM", HTML(GTM)), #add google tag manager
       tags$style(type="text/css", "label.radio { display: inline-block; }", ".radio input[type=\"radio\"] { float: none; }"),
       tags$style(type="text/css", "select { max-width: 250px; }"),
       tags$style(type="text/css", "input { max-width: 250px; }"),
       tags$style(type="text/css", "textarea { max-width: 230px; }"),
       #tags$style(type='text/css', ".well { padding: 5px; margin-bottom: 5px; max-width: 300px; }"),
       tags$style(type='text/css', ".span4 { max-width: 300px; }")
+      
     ),
     p(h4("Data Setting")),
     wellPanel(
@@ -25,13 +41,11 @@ shinyUI(pageWithSidebar(
       p("Import data:"),
       conditionalPanel(
         condition="input.data_type == 'ind'",
-        #uiOutput("ui_import_ind")
         tags$textarea(id="copyAndPaste_ind", rows=5, 
                       "Girdled 46 22 17 15 15  9  8  6  6  4  2  2  2  2  1  1  1  1  1  1  1  1  1  1  1  1 \nLogged 88 22 16 15 13 10  8  8  7  7  7  5  4  4  4  3  3  3  3  2  2  2  2  1  1  1  1  1  1  1  1  1  1  1  1  1  1")  
       ),
       conditionalPanel(
         condition="input.data_type == 'sam'",
-        #uiOutput("ui_import_sam")
         tags$textarea(id="copyAndPaste_sam", rows=5, 
                       "Ants_1500m 200 144 113 79 76 74 73 53 50 43 33 32 30 29 25 25 25 24 23 23 19 18 17 17 11 11 9 9 9 9 6 6 5 5 5 5 4 4 3 3 2 2 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 \nAnts_2000m 200 80 59 34 23 19 15 13 8 8 4 3 2 2 1")
       ),          
@@ -40,37 +54,8 @@ shinyUI(pageWithSidebar(
     
     p(h4("General Setting")),
     wellPanel(
-    
-      conditionalPanel(
-        condition = "input.data_type == 'ind'",
-        selectInput("ul_ind_method", "Endpoint(s) control:", 
-                    c("Sample size"="si", "Sample coverage"="sc")
-        ),
-        conditionalPanel(
-          condition = "input.ul_ind_method == 'si'",
-          uiOutput("choose_ulsi_ind")
-        ),
-        conditionalPanel(
-          condition = "input.ul_ind_method == 'sc'",
-          uiOutput("choose_ulsc_ind")
-        )
-      ),
-      
-      conditionalPanel(
-        condition = "input.data_type == 'sam'",
-        selectInput("ul_sam_method", "Endpoint(s) control:", 
-                    c("Number of Samples"="si", "Sample coverage"="sc")
-        ),
-        conditionalPanel(
-          condition = "input.ul_sam_method == 'si'",
-          uiOutput("choose_ulsi_sam")
-        ),
-        conditionalPanel(
-          condition = "input.ul_sam_method == 'sc'",
-          uiOutput("choose_ulsc_sam")
-        )
-      ),
-      p(em("Setting the upper limit by sliderbar.")),
+      uiOutput("set_endpt"),
+     
       numericInput("knots", "Number of knots", 
                    min=20, max=200, step=10, value=40),
       numericInput("nboot", "Number of bootstraps", 
@@ -88,7 +73,6 @@ shinyUI(pageWithSidebar(
   mainPanel(tabsetPanel(
     tabPanel("Data Summary", 
              h3("Basic data information"),
-             #verbatimTextOutput("test"),
              checkboxInput("showRaw", "Show raw data (Observed frequencies)", FALSE),
              conditionalPanel(
                condition="input.showRaw == true",

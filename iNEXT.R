@@ -5,7 +5,7 @@ summary.Ind <- function(dat){
     f1 <- fk[1]
     f2 <- fk[2]
     Sobs <- sum(x>0)
-    f0hat <- ifelse(f2>0, f1^2/(2*f2), f1*(f1-1)/2)
+    f0hat <- (n-1) / n *ifelse(f2>0,  f1^2/(2*f2), f1*(f1-1)/2)
     Shat <- Sobs + round(f0hat, 2)
     Chat <- round(1 - f1/n*(n-1)*f1/((n-1)*f1+2*max(f2,0)),4)
     c(n, Sobs, Shat, Chat, fk)
@@ -48,9 +48,10 @@ summary.Sam <- function(dat){
 ##
 ##
 conf.reg=function(x,LCL,UCL,...) {
-  x <- sort(x)
-  LCL <- sort(LCL)
-  UCL <- sort(UCL)
+  x.sort <- order(x)
+  x <- x[x.sort]
+  LCL <- LCL[x.sort]
+  UCL <- UCL[x.sort]
   polygon(c(x,rev(x)),c(LCL,rev(UCL)), ...)
 }
 
@@ -68,17 +69,17 @@ EstiBootComm.Ind <- function(Spec)
   Sobs <- sum(Spec > 0)   #observed species
   n <- sum(Spec)        #sample size
   f1 <- sum(Spec == 1)   #singleton 
-  f2 <- sum(Spec == 2) 	#doubleton
-  A <- (n-1)*f1/((n-1)*f1+2*max(f2,0))
-  a <- ifelse(f1 == 0, 0, (n - 1) * f1 / ((n - 1) * f1 + 2 * f2) * f1 / n)
+  f2 <- sum(Spec == 2)   #doubleton
+  f0.hat <- ifelse(f2 == 0, (n - 1) / n * f1 * (f1 - 1) / 2, (n - 1) / n * f1 ^ 2/ 2 / f2)  #estimation of unseen species via Chao1
+  A <- n*f0.hat/(n*f0.hat+f1)
+  a <- f1/n*A
   b <- sum(Spec / n * (1 - Spec / n) ^ n)
-  w <- a / b  			#adjusted factor for rare species in the sample
-  f0.hat <- ceiling(ifelse(f2 == 0, (n - 1) / n * f1 * (f1 - 1) / 2, (n - 1) / n * f1 ^ 2/ 2 / f2))	#estimation of unseen species via Chao1
+  w <- a / b    		#adjusted factor for rare species in the sample
   Prob.hat <- Spec / n * (1 - w * (1 - Spec / n) ^ n)					#estimation of relative abundance of observed species in the sample
-  #Prob.hat.Unse <- rep(2 * f2/((n - 1) * f1 + 2 * f2), f0.hat)		#estimation of relative abundance of unseen species in the sample
-  Prob.hat.Unse <- rep(f1/n*A/f0.hat, f0.hat)  	#estimation of relative abundance of unseen species in the sample
+  Prob.hat.Unse <- rep(a/ceiling(f0.hat), ceiling(f0.hat))  	#estimation of relative abundance of unseen species in the sample
   return(c(Prob.hat, Prob.hat.Unse))									#Output: a vector of estimated relative abundance
 }
+
 
 
 ##
@@ -94,19 +95,19 @@ EstiBootComm.Sam <- function(Spec)
 {
   nT <- Spec[1]
   Spec <- Spec[-1]
-  Sobs <- sum(Spec > 0) 	#observed species
+  Sobs <- sum(Spec > 0)   #observed species
   Q1 <- sum(Spec == 1) 	#singleton 
   Q2 <- sum(Spec == 2) 	#doubleton
-  A <- (nT-1)*Q1/((nT-1)*Q1+2*max(Q2,0))
-  a <- ifelse(Q1 == 0, 0, (nT - 1) * Q1 / ((nT - 1) * Q1 + 2 * Q2) * Q1 / nT)
+  Q0.hat <- ifelse(Q2 == 0, (nT - 1) / nT * Q1 * (Q1 - 1) / 2, (nT - 1) / nT * Q1 ^ 2/ 2 / Q2)	#estimation of unseen species via Chao2
+  A <- nT*Q0.hat/(nT*Q0.hat+Q1)
+  a <- Q1/nT*A
   b <- sum(Spec / nT * (1 - Spec / nT) ^ nT)
   w <- a / b  			#adjusted factor for rare species in the sample
-  Q0.hat <- ceiling(ifelse(Q2 == 0, (nT - 1) / nT * Q1 * (Q1 - 1) / 2, (nT - 1) / nT * Q1 ^ 2/ 2 / Q2))	#estimation of unseen species via Chao2
   Prob.hat <- Spec / nT * (1 - w * (1 - Spec / nT) ^ nT)					#estimation of detection probability of observed species in the sample
-  #Prob.hat.Unse <- rep(2 * Q2/((nT - 1) * Q1 + 2 * Q2), Q0.hat)		#estimation of detection probability of unseen species in the sample
-  Prob.hat.Unse <- rep(Q1/nT*A/Q0.hat, Q0.hat)  	#estimation of detection probability of unseen species in the sample
+  Prob.hat.Unse <- rep(a/ceiling(Q0.hat), ceiling(Q0.hat))  	#estimation of detection probability of unseen species in the sample
   return(c(Prob.hat,  Prob.hat.Unse))									#Output: a vector of estimated detection probability
 }
+
 
 
 D0hat.Ind <- function(x, m){
@@ -124,8 +125,9 @@ D0hat.Ind <- function(x, m){
       Sobs <- sum(x > 0)
       f1 <- sum(x == 1)
       f2 <- sum(x == 2)
-      f0.hat <- ifelse(f2 > 0, f1^2 /(2 * f2), f1 * (f1 - 1) / 2)
-      ifelse(f1 ==0, Sobs ,Sobs + f0.hat * (1 - (1 - f1 / (n * f0.hat + f1)) ^ (m - n)))  
+      f0.hat <- ifelse(f2 == 0, (n - 1) / n * f1 * (f1 - 1) / 2, (n - 1) / n * f1 ^ 2/ 2 / f2)	#estimation of unseen species via Chao1
+      A <- n*f0.hat/(n*f0.hat+f1)
+      ifelse(f1 ==0, Sobs ,Sobs + f0.hat * (1 - A ^ (m - n)))	
     }
   }
   sapply(m, Sub)
@@ -149,11 +151,11 @@ D0hat.Sam <- function(y, t){
       Sobs <- sum(y > 0)
       Q1 <- sum(y==1)
       Q2 <- sum(y==2)
-      A <- ifelse(Q2 > 0, (nT-1)*Q1/((nT-1)*Q1+2*Q2), (nT-1)*Q1/((nT-1)*Q1+2))
-      C.hat <- 1 - Q1 / U * A
-      Q0.hat <- ifelse(Q2 > 0, Q1^2 /(2 * Q2), Q1 * (Q1 - 1) / 2)
-      ifelse(Q1 ==0, Sobs ,Sobs + Q0.hat * (1 - (1 - Q1 / (nT * Q0.hat + Q1)) ^ (t - nT)))  
-    }
+      Q0.hat <- ifelse(Q2 == 0,  (nT-1)/nT* Q1 * (Q1 - 1) / 2, (nT - 1) / nT * Q1 ^ 2/ 2 / Q2)	#estimation of unseen species via Chao2
+      A <- nT*Q0.hat/(nT*Q0.hat+Q1)
+      ifelse(Q1 ==0, Sobs ,Sobs + Q0.hat * (1 - A ^ (t - nT)))	
+    
+   }
   }
   sapply(t, Sub)
 }
@@ -176,7 +178,8 @@ Chat.Ind <- function(x, m)
   n <- sum(x)
   f1 <- sum(x == 1)
   f2 <- sum(x == 2)
-  A <- ifelse(f2 > 0, (n-1)*f1/((n-1)*f1+2*f2), (n-1)*f1/((n-1)*f1+2))
+  f0.hat <- ifelse(f2 == 0, (n - 1) / n * f1 * (f1 - 1) / 2, (n - 1) / n * f1 ^ 2/ 2 / f2)  #estimation of unseen species via Chao1
+  A <- n*f0.hat/(n*f0.hat+f1)
   Sub <- function(m){
     if(m < n) out <- 1-sum(x / n * exp(lchoose(n - x, m)-lchoose(n - 1, m)))
     if(m == n) out <- 1-f1/n*A
@@ -204,7 +207,8 @@ Chat.Sam <- function(Spec, t){
   U <- sum(y)
   Q1 <- sum(y == 1)
   Q2 <- sum(y == 2)
-  A <- ifelse(Q2 > 0, (nT-1)*Q1/((nT-1)*Q1+2*Q2), (nT-1)*Q1/((nT-1)*Q1+2))
+  Q0.hat <- ifelse(Q2 == 0, (nT - 1) / nT * Q1 * (Q1 - 1) / 2, (nT - 1) / nT * Q1 ^ 2/ 2 / Q2)  #estimation of unseen species via Chao2
+  A <- nT*Q0.hat/(nT*Q0.hat+Q1)
   Sub <- function(t){
     if(t < nT) out <- 1 - sum(y / U * exp(lchoose(nT - y, t) - lchoose(nT - 1, t)))
     if(t == nT) out <- 1 - Q1 / U * A
@@ -228,10 +232,15 @@ Chat.Sam <- function(Spec, t){
 ## Output, a list of interpolation and extrapolation Hill number with order 0, 1, 2 and sample coverage 
 ##
 ##
-iNEXT.Ind <- function(Spec, endpoint=2*sum(Spec), Knots=40, se=TRUE, nboot=50)
+iNEXT.Ind <- function(Spec, endpoint, Knots=40, se=TRUE, nboot=50)
 {
   n <- sum(Spec)  	  	#sample size
-  m <- c(floor(seq.int(1, sum(Spec)-1, length=floor(Knots/2)-1)), sum(Spec), floor(seq.int(sum(Spec)+1, to=endpoint, length=floor(Knots/2))))
+  if(endpoint <= n) {
+    #m <- seq.int(1, endpoint, length=Knots)
+    m <- c(floor(seq.int(1, endpoint-1, length=floor(Knots/2)-1)), endpoint, rep(endpoint+1, floor(Knots/2)))
+  } else {
+    m <- c(floor(seq.int(1, sum(Spec)-1, length=floor(Knots/2)-1)), sum(Spec), floor(seq.int(sum(Spec)+1, to=endpoint, length=floor(Knots/2))))
+  }
   m <- c(1, m[-1])      
   D0.hat <- D0hat.Ind(Spec, m)
   C.hat <- Chat.Ind(Spec, m)
@@ -280,8 +289,12 @@ iNEXT.Ind <- function(Spec, endpoint=2*sum(Spec), Knots=40, se=TRUE, nboot=50)
 ##
 iNEXT.Sam <- function(Spec, endpoint=2*Spec[1], Knots=40, se=TRUE, nboot=50)
 {
-  nT <- Spec[1]
-  t <- c(floor(seq.int(1, nT-1, length=floor(Knots/2)-1)), nT, floor(seq.int(nT+1, to=endpoint, length=floor(Knots/2))))
+  nT <- max(Spec)
+  if(endpoint <= nT){
+    t <- floor(seq.int(1, endpoint, length=Knots))
+  } else {
+    t <- c(floor(seq.int(1, nT-1, length=floor(Knots/2)-1)), nT, floor(seq.int(nT+1, to=endpoint, length=floor(Knots/2))))
+  }
   t <- c(1, t[-1])
   D0.hat <- D0hat.Sam(Spec, t) 
   C.hat <- Chat.Sam(Spec, t)
@@ -458,7 +471,6 @@ InvChat.Sam <- function(Spec, sc)
   t
 }
 
-
 library(compiler)
-inext.ind <- cmpfun(inext.ind)
-inext.sam <- cmpfun(inext.sam)
+iNEXT.Ind <- cmpfun(iNEXT.Ind)
+iNEXT.Sam <- cmpfun(iNEXT.Sam)

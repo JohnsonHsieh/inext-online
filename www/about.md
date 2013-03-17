@@ -21,6 +21,7 @@ User Guide
 
 <h2 id="overview">Overview</h2>
 
+
 The program **iNEXT** (**iN**terpolation and **EXT**rapolation) online is written in the [R][] language and the interactive web application is built by using [Shiny][]. The user provides a vector of abundances of individual species (abundance data) or incidences of individual species (incidence data). iNEXT computes the following species richness estimates and associated 95% confidence intervals:
 
 1. Sample-size-based rarefaction and extrapolation: species richness estimates for rarefied and extrapolated samples up to a size specified by the user (i.e., an endpoint, see below). Refer to Colwell et al. (2012) for details.
@@ -38,7 +39,7 @@ iNEXT also plots the following three integrated sampling curves suggested in Cha
 <h3 id="cite">How to Cite</h3>
 <font color="ff0000">If you use iNEXT to obtain results for publication, you should cite at least one of the relevant papers (Chao and Jost 2012; Colwell et al. 2012; Chao et al. 2013) along with the following reference for iNEXT:</font>
   
-<p style="padding-left: 30px;">Hsieh, T. C., K. H. Ma, and A. Chao. 2013. iNEXT online: interpolation and extrapolation (Version 1.0) [Software]. Available from <a href="http://chao.stat.nthu.edu.tw/inext/">http://chao.stat.nthu.edu.tw/inext/</a>.</p>
+<p style="padding-left: 30px;">Hsieh, T. C., K. H. Ma, and A. Chao. 2013. iNEXT online: interpolation and extrapolation (Version 1.0) [Software]. Available from <a href="http://chao.stat.nthu.edu.tw/blog/software-download/">http://chao.stat.nthu.edu.tw/blog/software-download/</a>.</p>
 
 To help refine iNEXT, your comments or feedbacks would be welcome (please send them to chao@stat.nthu.edu.tw).
  [R]: http://www.r-project.org/
@@ -69,7 +70,7 @@ We use a simple example to show how to import abundance data. Consider the spide
   Logged 88 22 16 15 13 10  8  8  7  7  7  5  4  4  4  3  3  3  3  2  2  2  2  1  1  1  1  1  1  1  1  1  1  1  1  1  1
   ```
 
-Since there are two datasets, the imported data contain two lines (separated by return, "↵"). The first line includes the species abundances for 26 species in the Girdled Treatment and the second line includes the species abundances for 37 species in the Logged treatment. **For each line, the first entry is the title of the dataset (the title is not allowed to start with a numerical digit) followed by the species abundances.** All entries should be separated by blank space (" "). For example, in the Girdled Treatment, the most abundant species is represented by 46 individuals, the second most abundant species is represented by 22 individuals in the sample, etc. Although the species abundances in this example are entered in a decreasing order, the ordering is not relevant in our analysis. You can choose any ordering of species abundances. 
+Since there are two datasets, the imported data contain two lines (separated by return, "?"). The first line includes the species abundances for 26 species in the Girdled Treatment and the second line includes the species abundances for 37 species in the Logged treatment. **For each line, the first entry is the title of the dataset (the title is not allowed to start with a numerical digit) followed by the species abundances.** All entries should be separated by blank space (" "). For example, in the Girdled Treatment, the most abundant species is represented by 46 individuals, the second most abundant species is represented by 22 individuals in the sample, etc. Although the species abundances in this example are entered in a decreasing order, the ordering is not relevant in our analysis. You can choose any ordering of species abundances. 
 
 * Import incidence data:
   We use the ant data at two elevations (the 1500m and 2000m elevations on the Barva Transect in northeastern Costa Rica from Longino and Colwell 2011) as an example:
@@ -79,7 +80,7 @@ Since there are two datasets, the imported data contain two lines (separated by 
   Ants_2000m 200 80 59 34 23 19 15 13 8 8 4 3 2 2 1
   ```
 
-The import data contain two lines (separated by return, "↵"), the first line includes ants data at 1500m elevation, and the second line includes ants data at 2000m elevation. ** For each line, the first entry is the title of the dataset (the title is not allowed to start with a numerical digit), the second entry is the total number of sampling units, followed by the species incidences abundances (the number of sampling units that each species is found). ** All element entries should be separated by blank space (" "). For example, at 1500m elevation, 200 sampling units were used. The most frequent species was found in 144 sampling units, the second most frequent species was found in 113 units, etc. Although the species incidences in this example are entered in a decreasing order, the ordering is not relevant in our analysis.
+The import data contain two lines (separated by return, "?"), the first line includes ants data at 1500m elevation, and the second line includes ants data at 2000m elevation. ** For each line, the first entry is the title of the dataset (the title is not allowed to start with a numerical digit), the second entry is the total number of sampling units, followed by the species incidences abundances (the number of sampling units that each species is found). ** All element entries should be separated by blank space (" "). For example, at 1500m elevation, 200 sampling units were used. The most frequent species was found in 144 sampling units, the second most frequent species was found in 113 units, etc. Although the species incidences in this example are entered in a decreasing order, the ordering is not relevant in our analysis.
 <h2 id="gen-settings">General settings</h2>
 <h3 id="endpoint">Endpoint</h3>
 The endpoint is a value specifying the sample size (number of individuals/sampling units) or sample coverage that is the endpoint for extrapolation. 
@@ -108,7 +109,7 @@ This tab panel shows three species rarefaction/extrapolation curves (described i
   
 <h2 id="reference">References</h2>
 
-1. Chao, A., N. J. Gotelli, T. C. Hsieh, E. L. Sander, K. H. Ma, R. K. Colwell, and A. M. Ellison 2013. Rarefaction and extrapolation with Hill numbers: a unified framework for sampling and estimation in biodiversity studies, Ecological Monographs (under revision).
+1. Chao, A., N. J. Gotelli, T. C. Hsieh, E. L. Sander, K. H. Ma, R. K. Colwell, and A. M. Ellison 2013. Rarefaction and extrapolation with Hill numbers: a unified framework for sampling and estimation in biodiversity studies, Ecological Monographs (to appear).
 
 2. Chao, A., and L. Jost. 2012. Coverage-based rarefaction and extrapolation: standardizing samples by completeness rather than size. Ecology 93:2533-2547.
 
@@ -116,14 +117,8 @@ This tab panel shows three species rarefaction/extrapolation curves (described i
 
 4. Ellison, A. M., A. A. Barker-Plotkin, D. R. Foster, and D. A. Orwig. 2010. Experimentally testing the role of foundation species in forests: the Harvard Forest Hemlock Removal Experiment. Methods in Ecology and Evolution 1:168-179.
 
-5. Hsieh, T. C., K. H. Ma, and A. Chao. 2013. iNEXT online: interpolation and extrapolation (Version 1.0) [Software]. Available from http://chao.stat.nthu.edu.tw/inext/.
+5. Hsieh, T. C., K. H. Ma, and A. Chao. 2013. iNEXT online: interpolation and extrapolation (Version 1.0) [Software]. Available from http://chao.stat.nthu.edu.tw/blog/software-download/.
 
-6. Janzen, D. H. 1973a. Sweep samples of tropical foliage insects: effects of seasons, vegetation types, elevation, time of day, and insularity. Ecology 54:687-708.
-  
-7. Janzen, D. H. 1973b. Sweep samples of tropical foliage insects: description of study sites, with data on species abundances and size distributions. Ecology 54:659-686.
+6. Longino, J. T., and R. K. Colwell. 2011. Density compensation, species composition, and richness of ants on a neotropical elevational gradient. Ecosphere 2:art29.
 
-8. Longino, J. T., J. Coddington, and R. K. Colwell. 2002. The ant fauna of a tropical rain forest: estimating species richness three different ways. Ecology 83:689-702.
-
-9. Longino, J. T., and R. K. Colwell. 2011. Density compensation, species composition, and richness of ants on a neotropical elevational gradient. Ecosphere 2:art29.
-
-10. Sackett, T. E., S. Record, S. Bewick, B. Baiser, N. J. Sanders, and A. M. Ellison. 2011. Response of macroarthropod assemblages to the loss of hemlock (Tsuga canadensis), a foundation species. Ecosphere 2: art74.
+7. Sackett, T. E., S. Record, S. Bewick, B. Baiser, N. J. Sanders, and A. M. Ellison. 2011. Response of macroarthropod assemblages to the loss of hemlock (Tsuga canadensis), a foundation species. Ecosphere 2: art74.
