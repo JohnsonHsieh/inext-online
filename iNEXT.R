@@ -47,7 +47,12 @@ summary.Sam <- function(dat){
 ## Output, plot a confidence band
 ##
 ##
-conf.reg=function(x,LCL,UCL,...) polygon(c(x,rev(x)),c(LCL,rev(UCL)), ...)
+conf.reg=function(x,LCL,UCL,...) {
+  x <- sort(x)
+  LCL <- sort(LCL)
+  UCL <- sort(UCL)
+  polygon(c(x,rev(x)),c(LCL,rev(UCL)), ...)
+}
 
 
 ##
@@ -454,6 +459,6 @@ InvChat.Sam <- function(Spec, sc)
 }
 
 
-out1 <- iNEXT.Ind(Oldgrowth)
-out2 <- iNEXT.Ind(Secondgrowth)
-out <- list(out1, out2)
+library(compiler)
+inext.ind <- cmpfun(inext.ind)
+inext.sam <- cmpfun(inext.sam)

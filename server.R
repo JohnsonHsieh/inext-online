@@ -2,7 +2,8 @@
 library("shiny")
 library("shinyIncubator")
 library("xtable")
-
+library("markdown")
+ 
 load('data/ex_data.RData')
 data(list='ex_data')
 source("iNEXT.R")
@@ -19,106 +20,74 @@ shinyServer(function(input, output) {
   # Data setting
   #############################################################################  
   
-  output$choose_dataset <- renderUI({
-    #Add user upload data in the feture    
-    
-    if(input$data_type=="ind") {
-      
-      dat <- list("Oldgrowth"="Oldgrowth", "Secondgrowth"="Secondgrowth")
-      if(input$import_data == TRUE){
-        out <- loadPaste()
-        out.name <- names(out)
-        if(is.na(names(out)[1]) == FALSE) {
-          dat <- out
-          for(i in seq_along(out)){
-            dat[[i]] <- out.name[i]
-          }
-        } 
-      }
-    }
-    if(input$data_type=="sam") {
-      dat <- list("Berlese"="Berlese", "Malaise"="Malaise", "fogging"="fogging")
-      if(input$import_data == TRUE){
-        out <- loadPaste()
-        out.name <- names(out)
-        if(is.na(names(out)[1]) == FALSE) {
-          dat <- out
-          for(i in seq_along(out)){
-            dat[[i]] <- out.name[i]
-          }
-        } 
-      }
-    }
-    selectInput("dataset", "Select dataset:", choices  = dat, selected = dat[1], multiple = TRUE)
-  })
-  
-  output$ui_import_ind <- renderUI({
-    tags$textarea(id="copyAndPaste_ind", rows=5, 
-                  "Girdled 46 22 17 15 15  9  8  6  6  4  2  2  2  2  1  1  1  1  1  1  1  1  1  1  1  1 \nLogged 88 22 16 15 13 10  8  8  7  7  7  5  4  4  4  3  3  3  3  2  2  2  2  1  1  1  1  1  1  1  1  1  1  1  1  1  1")  
-  })
-  
-  output$ui_import_sam <- renderUI({
-    tags$textarea(id="copyAndPaste_sam", rows=5, 
-                  "Ants_1500m 200 144 113 79 76 74 73 53 50 43 33 32 30 29 25 25 25 24 23 23 19 18 17 17 11 11 9 9 9 9 6 6 5 5 5 5 4 4 3 3 2 2 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 \nAnts_2000m 200 80 59 34 23 19 15 13 8 8 4 3 2 2 1")
-  })
-  
-  
-  
   loadPaste <- reactive({
     if(input$data_type=="ind"){
       text <- input$copyAndPaste_ind
     } else {
       text <- input$copyAndPaste_sam
     }
-    temp <- lapply(readLines(textConnection(text)), function(x) scan(text = x, what='char'))
-    out <- list()
-    out.name <- 0
-    for(i in seq_along(temp)){
-      out.name[i] <- temp[[i]][1]
-      out[[i]] <- as.numeric(temp[[i]][-1])
+    Fun <- function(e){
+      temp <- lapply(readLines(textConnection(text)), function(x) scan(text = x, what='char'))
+      out <- list()
+      out.name <- 0
+      for(i in seq_along(temp)){
+        out.name[i] <- temp[[i]][1]
+        out[[i]] <- as.numeric(temp[[i]][-1])
+      }
+      names(out) <- t(data.frame(out.name))
+      out
     }
-    names(out) <- t(data.frame(out.name))
-    out
+    tryCatch(Fun(e), error=function(e){return()})
   })
   
-
+  output$choose_dataset <- renderUI({
+    Fun <- function(e){
+      out <- loadPaste()
+      out.name <- names(out)
+      if(is.na(names(out)[1]) == TRUE) {
+        selectInput("dataset", "Select dataset:", choices  = list("No data"))      
+      } else {
+        dat <- out
+        for(i in seq_along(out)){
+          dat[[i]] <- out.name[i]
+        }
+        selectInput("dataset", "Select dataset:", choices  = dat, selected = dat[1], multiple = TRUE)
+      }    
+    }
+    tryCatch(Fun(e), error=function(e){return()})
+  })
+  
+  #output$ui_import_ind <- renderUI({
+  #  tags$textarea(id="copyAndPaste_ind", rows=5, 
+  #                "Girdled 46 22 17 15 15  9  8  6  6  4  2  2  2  2  1  1  1  1  1  1  1  1  1  1  1  1 \nLogged 88 22 16 15 13 10  8  8  7  7  7  5  4  4  4  3  3  3  3  2  2  2  2  1  1  1  1  1  1  1  1  1  1  1  1  1  1")  
+  #})
+  
+  #output$ui_import_sam <- renderUI({
+  #  tags$textarea(id="copyAndPaste_sam", rows=5, 
+  #                "Ants_1500m 200 144 113 79 76 74 73 53 50 43 33 32 30 29 25 25 25 24 23 23 19 18 17 17 11 11 9 9 9 9 6 6 5 5 5 5 4 4 3 3 2 2 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 \nAnts_2000m 200 80 59 34 23 19 15 13 8 8 4 3 2 2 1")
+  #})
+  
+  
   
   selectedData <- reactive({
-    if(is.null(input$dataset)) dataset <- NULL
-    if(input$data_type=="ind"){
-      text <- input$copyAndPaste_ind
-    } else {
-      text <- input$copyAndPaste_sam
+    out <- loadPaste()
+    selected <- 1
+    dataset <- list()
+    for(i in seq_along(input$dataset)){
+      selected[i] <- which(names(out)==input$dataset[i])
     }
-    if(input$import_data == FALSE || text==""){
-      dataset <-lapply(input$dataset, get)
-      names(dataset) <- input$dataset
-    } else {
-      out <- loadPaste()
-      selected <- 1
-      if(is.null(input$dataset)) {
-        selected <- 1
-      } else {
-        for(i in seq_along(input$dataset)){
-          selected[i] <- which(names(out)==input$dataset[i])
-        }
-        #selected <- which(names(out)==input$dataset)
-      }
-      dataset <- list()
-      for(i in seq_along(selected)){
-        k <- selected[i]
-        dataset[[i]] <- out[[k]]
-      }
-      names(dataset) <- input$dataset
+    for(i in seq_along(selected)){
+      k <- selected[i]
+      dataset[[i]] <- out[[k]]
     }
-    return(dataset)
-    
+    names(dataset) <- input$dataset
+    return(dataset)    
   })
   
-  
-  output$datanames <- renderPrint(
-    selectedData()
-  )
+  #Test function
+  #output$datanames <- renderPrint(
+  #  selectedData()
+  #)
   
   
   #############################################################################
@@ -211,39 +180,53 @@ shinyServer(function(input, output) {
   })  
   
   output$choose_ulsi_ind <- renderUI({
-    out <- endpoint()
-    min <- out$min
-    max <- out$max
-    value <- out$value
-    try(sliderInput("ulsi_ind", "", min=min, max=max, step=1, value=value), silent=TRUE)
+    Fun <- function(e){
+      out <- endpoint()
+      min <- out$min
+      max <- out$max
+      value <- out$value
+      sliderInput("ulsi_ind", "", min=min, max=max, step=1, value=value)
+    }
+    tryCatch(Fun(e), error=function(e) {return()})
+  
   })
   
+    
   output$choose_ulsi_sam <- renderUI({
-    out <- endpoint()
-    min <- out$min
-    max <- out$max
-    value <- out$value
-    try(sliderInput("ulsi_sam", "", min=min, max=max, step=1, value=value), silent=TRUE)
+    Fun <- function(e){
+      out <- endpoint()
+      min <- out$min
+      max <- out$max
+      value <- out$value
+      sliderInput("ulsi_sam", "", min=min, max=max, step=1, value=value)
+    }
+    tryCatch(Fun(e), error=function(e) {return()})
   })
   
   output$choose_ulsc_ind <- renderUI({
-    out <- endpoint()
-    min <- out$min
-    max <- out$max
-    value <- out$value
-    #try(sliderInput("ulsc_ind", "", min=round(min,3), max=max, step=(1-min)/100, value=round(value,3)), silent=TRUE)
-    tryCatch(sliderInput("ulsc_ind", "", min=round(min,3), max=max, step=(1-min)/100, value=round(value,3)), error=function(e) {"The estimation of sample coverage (C.hat) is too close to 1, please try 'Sample size' method."})
+    Fun <- function(e){
+      out <- endpoint()
+      min <- out$min
+      max <- out$max
+      value <- out$value
+      sliderInput("ulsc_ind", "", min=round(min,3), max=max, step=round((1-min)/100,4), value=round(value,3))
+    }
+    tryCatch(Fun(e), error=function(e) {return("The estimation of sample coverage (C.hat) is too close to 1, please try 'Sample size' method.")})
   })
   
   output$choose_ulsc_sam <- renderUI({
-    out <- endpoint()
-    min <- out$min
-    max <- out$max
-    value <- out$value
-    #try(sliderInput("ulsc_sam", "", min=round(min,3), max=max, step=(1-min)/100, value=round(value,3)),silent=TRUE)
-    tryCatch(sliderInput("ulsc_sam", "", min=round(min,3), max=max, step=(1-min)/100, value=round(value,3)), error=function(e) {"The estimation of sample coverage (C.hat) is too close to 1, please try 'Sample size' method."})
+    Fun <- function(e){
+      out <- endpoint()
+      min <- out$min
+      max <- out$max
+      value <- out$value
+      sliderInput("ulsc_sam", "", min=round(min,3), max=max, step=round((1-min)/100,4), value=round(value,3))
+    }
+    tryCatch(Fun(e), error=function(e) {return("The estimation of sample coverage (C.hat) is too close to 1, please try 'Sample size' method.")})
   })
   
+  
+
   #############################################################################
   # Rarefaction and Prediction
   #############################################################################
@@ -310,7 +293,7 @@ shinyServer(function(input, output) {
   
   #Download iNEXT output 
   output$dlinext <- downloadHandler(
-    filename = function() { paste('iNEXToutput-', Sys.Date(), '.csv', sep='') },
+    filename = function() { paste('output_', Sys.Date(), '_[iNEXT].csv', sep='') },
     content = function(file) { 
       out <- readRDS(tempRD2)
       #out <- out.iNEXT()

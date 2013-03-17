@@ -21,28 +21,26 @@ shinyUI(pageWithSidebar(
                   c("Abundance data"="ind", "Incidence data"="sam")),
       uiOutput("choose_dataset"),
       p(em("Using ctrl / command key to select multiple datasets you want")),
-      
-      checkboxInput("import_data", strong("Import data"), FALSE),
+
+      p("Import data:"),
       conditionalPanel(
-        condition="input.import_data==true",
-        
-        conditionalPanel(
-          condition="input.data_type == 'ind'",
-          uiOutput("ui_import_ind")
-        ),
-        conditionalPanel(
-          condition="input.data_type == 'sam'",
-          uiOutput("ui_import_sam")
-        ),
-        
-        p(em("Type R code to import data"))
-      )
+        condition="input.data_type == 'ind'",
+        #uiOutput("ui_import_ind")
+        tags$textarea(id="copyAndPaste_ind", rows=5, 
+                      "Girdled 46 22 17 15 15  9  8  6  6  4  2  2  2  2  1  1  1  1  1  1  1  1  1  1  1  1 \nLogged 88 22 16 15 13 10  8  8  7  7  7  5  4  4  4  3  3  3  3  2  2  2  2  1  1  1  1  1  1  1  1  1  1  1  1  1  1")  
+      ),
+      conditionalPanel(
+        condition="input.data_type == 'sam'",
+        #uiOutput("ui_import_sam")
+        tags$textarea(id="copyAndPaste_sam", rows=5, 
+                      "Ants_1500m 200 144 113 79 76 74 73 53 50 43 33 32 30 29 25 25 25 24 23 23 19 18 17 17 11 11 9 9 9 9 6 6 5 5 5 5 4 4 3 3 2 2 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 \nAnts_2000m 200 80 59 34 23 19 15 13 8 8 4 3 2 2 1")
+      ),          
+      p(em("Refer to user guide for importing data"))
     ),
     
     p(h4("General Setting")),
     wellPanel(
-      #p(em("Setting the number of bootstrap to zero will not compute 95% confidence band.")),
-      
+    
       conditionalPanel(
         condition = "input.data_type == 'ind'",
         selectInput("ul_ind_method", "Endpoint(s) control:", 
@@ -90,7 +88,7 @@ shinyUI(pageWithSidebar(
   mainPanel(tabsetPanel(
     tabPanel("Data Summary", 
              h3("Basic data information"),
-             #verbatimTextOutput("datanames"),
+             #verbatimTextOutput("test"),
              checkboxInput("showRaw", "Show raw data (Observed frequencies)", FALSE),
              conditionalPanel(
                condition="input.showRaw == true",
