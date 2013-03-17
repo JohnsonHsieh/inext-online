@@ -460,5 +460,5 @@ InvChat.Sam <- function(Spec, sc)
 
 
 library(compiler)
-inext.ind <- cmpfun(inext.ind)
-inext.sam <- cmpfun(inext.sam)
+iNEXT.Ind <- cmpfun(iNEXT.Ind)
+iNEXT.Sam <- cmpfun(iNEXT.Sam)

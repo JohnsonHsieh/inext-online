@@ -21,6 +21,7 @@ User Guide
 
 <h2 id="overview">Overview</h2>
 
+
 The program **iNEXT** (**iN**terpolation and **EXT**rapolation) online is written in the [R][] language and the interactive web application is built by using [Shiny][]. The user provides a vector of abundances of individual species (abundance data) or incidences of individual species (incidence data). iNEXT computes the following species richness estimates and associated 95% confidence intervals:
 
 1. Sample-size-based rarefaction and extrapolation: species richness estimates for rarefied and extrapolated samples up to a size specified by the user (i.e., an endpoint, see below). Refer to Colwell et al. (2012) for details.
