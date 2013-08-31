@@ -8,7 +8,7 @@ load('data/ex_data.RData')
 data(list='ex_data')
 source("iNEXT.R")
 
-
+ 
 shinyServer(function(input, output) {
   tempRD1 <- paste(tempfile(), ".RData", sep="")
   tempRD2 <- paste(tempfile(), ".RData", sep="")

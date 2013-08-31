@@ -14,7 +14,7 @@ summary.Ind <- function(dat){
   colnames(out) <- c("n", "S.obs", "S.hat", "C.hat", paste("f",1:10, sep=""))
   as.data.frame(out, row.names="")
 }
-
+ 
 
 summary.Sam <- function(dat){
   Fun <- function(x){

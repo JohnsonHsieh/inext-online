@@ -32,7 +32,7 @@ shinyUI(pageWithSidebar(
       
     ),
     p(h4("Data Setting")),
-    wellPanel(
+    wellPanel(  
       selectInput("data_type", "Select data type:", 
                   c("Abundance data"="ind", "Incidence data"="sam")),
       uiOutput("choose_dataset"),
