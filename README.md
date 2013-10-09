@@ -15,10 +15,10 @@ Interactive data analytics using [R](http://www.r-project.org/) and [Shiny](http
 Start R(studio) and copy-and-paste the commands below:
 
 	install.packages('shiny', repos = "http://cran.rstudio.com")
-	shiny::runGitHub('inext','JohnsonHsieh')
+	shiny::runGitHub('inext-online','JohnsonHsieh')
 
 ### License
-The radyant package is licensed under the GPLv3. See the files listed below for additional details.
+The iNEXT-online package is licensed under the GPLv3. See the files listed below for additional details.
 
 - COPYING - radyant package license (GPLv3)
 - NOTICE - Copyright notices for additional included software
