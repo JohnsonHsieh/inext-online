@@ -6,7 +6,7 @@ Interactive data analytics using [R](http://www.r-project.org/) and [Shiny](http
 - Add individuals-based data and sample-based data
 - etc. etc.
 
-### Run the development version of the marketing app locally
+### Run the development version of the web app locally
 
 - Required: [R](http://cran.rstudio.com/)
 - Required: A modern browser (e.g., Chrome, Firefox, or Safari). Internet Explorer is not supported.
