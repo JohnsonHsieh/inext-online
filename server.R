@@ -3,12 +3,12 @@ library("shiny")
 library("shinyIncubator")
 library("xtable")
 library("markdown")
- 
+
 load('data/ex_data.RData')
 data(list='ex_data')
 source("iNEXT.R")
 
- 
+
 shinyServer(function(input, output) {
   tempRD1 <- paste(tempfile(), ".RData", sep="")
   tempRD2 <- paste(tempfile(), ".RData", sep="")
@@ -64,10 +64,10 @@ shinyServer(function(input, output) {
   output$choose_dataset <- renderUI({
     dat <- getDataName()
     selectInput("dataset", "Select dataset:", choices = dat, selected = dat[1], multiple = TRUE)
-   
+    
   })
   
-
+  
   
   #output$ui_import_ind <- renderUI({
   #  tags$textarea(id="copyAndPaste_ind", rows=5, 
@@ -138,7 +138,7 @@ shinyServer(function(input, output) {
   #############################################################################
   # Slider control
   #############################################################################  
-    
+  
   output$set_endpt <- renderUI({
     
     dataset <- selectedData()
@@ -150,112 +150,17 @@ shinyServer(function(input, output) {
       }
       
     } else if (input$data_type == "sam"){
-=======
-    #names(dataset) <- input$dataset
-    out <- list(min=0, value=0, max=0)
-    min <- max <- value <- 0
-    if (input$data_type == "ind" && input$ul_ind_method == "si") {
-      for(i in seq_along(dataset)){  
-        min[i] <- sum(dataset[[i]])
-        value[i] <- 2 * sum(dataset[[i]])
-        max[i] <- InvChat.Ind(dataset[[i]], 1-tol)
-      }
-      min <- max(min)
-      max <- max(max, 4*min)
-      value <- max(min, min(value))
-      value <- min(value, max)
-    } else if (input$data_type == "ind" && input$ul_ind_method == "sc") {
-      for(i in seq_along(dataset)){
-        n <- sum(dataset[[i]])
-        min[i] <- Chat.Ind(dataset[[i]], n)
-        value[i] <- Chat.Ind(dataset[[i]], 2*n)
-      }
-      min <- max(min)
-      max <- 1-tol
-      value <- max(min, min(value))
-      value <- min(value, max)
-    } else if (input$data_type == "sam" && input$ul_sam_method == "si") {
-      for(i in seq_along(dataset)){
-        min[i] <- dataset[[i]][1]
-        value[i] <- 2*min[i]
-        max[i] <- InvChat.Sam(dataset[[i]], 1-tol)
-      }
-      min <- max(min)
-      max <- max(max, 4*min)
-      value <- max(min, min(value))
-      value <- min(value, max) 
-    } else if (input$data_type == "sam" && input$ul_sam_method == "sc") {
->>>>>>> ed7e869379e3d435c33563e4789cacba8b2656c8
       for(i in seq_along(dataset)){
         size[i] <- dataset[[i]][1]
       }
-<<<<<<< HEAD
     }
     eptAuto <- ifelse(length(size)>1, min(max(size), min(2*size)), 2*size)
     numericInput("endpt", "Endpoint setting", value=eptAuto)    
   })
   
-=======
-      min <- max(min)
-      max <- 1-tol
-      value <- max(min, min(value))
-      value <- min(value, max)
-    }
-    out$min <- min
-    out$max <- max
-    out$value <- value
-    return(out)
-  })  
-  
-  output$choose_ulsi_ind <- renderUI({
-    Fun <- function(e){
-      out <- endpoint()
-      min <- out$min
-      max <- out$max
-      value <- out$value
-      sliderInput("ulsi_ind", "", min=min, max=max, step=1, value=value)
-    }
-    tryCatch(Fun(e), error=function(e) {return()})
-  
-  })
-  
-    
-  output$choose_ulsi_sam <- renderUI({
-    Fun <- function(e){
-      out <- endpoint()
-      min <- out$min
-      max <- out$max
-      value <- out$value
-      sliderInput("ulsi_sam", "", min=min, max=max, step=1, value=value)
-    }
-    tryCatch(Fun(e), error=function(e) {return()})
-  })
-  
-  output$choose_ulsc_ind <- renderUI({
-    Fun <- function(e){
-      out <- endpoint()
-      min <- out$min
-      max <- out$max
-      value <- out$value
-      sliderInput("ulsc_ind", "", min=round(min,3), max=max, step=round((1-min)/100,4), value=round(value,3))
-    }
-    tryCatch(Fun(e), error=function(e) {return("The estimation of sample coverage (C.hat) is too close to 1, please try 'Sample size' method.")})
-  })
-  
-  output$choose_ulsc_sam <- renderUI({
-    Fun <- function(e){
-      out <- endpoint()
-      min <- out$min
-      max <- out$max
-      value <- out$value
-      sliderInput("ulsc_sam", "", min=round(min,3), max=max, step=round((1-min)/100,4), value=round(value,3))
-    }
-    tryCatch(Fun(e), error=function(e) {return("The estimation of sample coverage (C.hat) is too close to 1, please try 'Sample size' method.")})
-  })
->>>>>>> ed7e869379e3d435c33563e4789cacba8b2656c8
   
   
-
+  
   #############################################################################
   # Rarefaction and Prediction
   #############################################################################

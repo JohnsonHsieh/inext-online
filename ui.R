@@ -2,21 +2,21 @@ GTM <- "
 <!-- Google Tag Manager -->
   <noscript><iframe src=\"//www.googletagmanager.com/ns.html?id=GTM-BM4R\"
 height=\"0\" width=\"0\" style=\"display:none;visibility:hidden\"></iframe></noscript>
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                                                          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                               j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                                 '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-BM4R');</script>
-  <!-- End Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-BM4R');</script>
+<!-- End Google Tag Manager -->
 "
-  
+
 
 
 library(shiny)
 
 # Define UI
 shinyUI(pageWithSidebar(
-
+  
   #app title
   headerPanel("iNEXT Online"),
   #input
@@ -32,12 +32,12 @@ shinyUI(pageWithSidebar(
       
     ),
     p(h4("Data Setting")),
-    wellPanel(  
+    wellPanel(
       selectInput("data_type", "Select data type:", 
                   c("Abundance data"="ind", "Incidence data"="sam")),
       uiOutput("choose_dataset"),
       p(em("Using ctrl / command key to select multiple datasets you want")),
-
+      
       p("Import data:"),
       conditionalPanel(
         condition="input.data_type == 'ind'",
@@ -55,7 +55,7 @@ shinyUI(pageWithSidebar(
     p(h4("General Setting")),
     wellPanel(
       uiOutput("set_endpt"),
-     
+      
       numericInput("knots", "Number of knots", 
                    min=20, max=200, step=10, value=40),
       numericInput("nboot", "Number of bootstraps", 
